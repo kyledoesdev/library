@@ -10,14 +10,13 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $books = auth()->user()->is_librarian
+            ? Book::forLibrarian()
+            : Book::forCustomer();
+
         return Inertia::render('Dashboard', [
-            'books' => Book::query()
-                ->when($request->search, function($query, $search) {
-                    $query->where('title', 'like', "%{$search}%");
-                })
-                ->with('checkouts', 'author')
-                ->paginate($request->input('per_page', 15))
-                ->withQueryString(),
+            'books' => $books,
+            'featured_books' => Book::featured()
         ]);
     }
 }

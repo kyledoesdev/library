@@ -18,7 +18,7 @@ class BookFactory extends Factory
             'category_id' => Category::inRandomOrder()->first()->getKey(),
             'title' => $this->faker->sentence(1),
             'description' => $this->faker->sentence(3),
-            'cover' => 'https://api.dicebear.com/9.x/icons/svg?icon=book',
+            'cover' => "https://picsum.photos/seed/{$this->faker->company()}/200/300",
             'publisher' => $this->faker->company(),
             'published_at' => $this->faker->dateTimeBetween('-30 years', 'now'),
             'isbn' => $this->faker->isbn13(),

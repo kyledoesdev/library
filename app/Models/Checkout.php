@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Checkout extends Model
 {
@@ -11,8 +12,14 @@ class Checkout extends Model
         'user_id',
         'book_id',
         'checked_out_at',
-        'due_at'
+        'due_at',
+        'returned_at'
     ];
+
+    public function book(): HasOne
+    {
+        return $this->hasOne(Book::class, 'id', 'book_id');
+    }
 
     public function getDueAtAttribute(): string
     {

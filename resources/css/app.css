@@ -101,7 +101,7 @@ html {
     }
     
     .btn-helper {
-      @apply border border-zinc-800 rounded-lg bg-blue-300 hover:bg-blue-400 dark:text-white;
+      @apply border border-zinc-800 rounded-lg bg-blue-300 hover:bg-blue-400 dark:text-white p-2;
     }
     
     .btn-danger {
