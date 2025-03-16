@@ -58,7 +58,7 @@ const createBook = () => {
                 />
             </div>
             <div>
-                <button class="btn-primary dark:bg-blue-600 dark:text-white" @click="createBook" v-if="user.is_librarian">
+                <button class="btn-primary dark:text-white" @click="createBook" v-if="user.is_librarian">
                     <div class="flex">
                         <PlusIcon class="size-6" />
                         <span> Add a book</span>

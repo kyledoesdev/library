@@ -3,7 +3,8 @@ import { ref, reactive, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { Input } from '@/components/ui/input';
 import { useForm } from '@inertiajs/vue3';
-import { CalendarIcon } from '@heroicons/vue/24/outline';
+import { Label } from '@/components/ui/label';
+import InputError from '@/components/InputError.vue';
 
 const props = defineProps({
     categories: {
@@ -94,7 +95,7 @@ const submit = () => {
         <form @submit.prevent="submit">
             <!-- Title -->
             <div class="mb-6">
-                <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Title *</label>
+                <Label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Title *</label>
                 <Input 
                     id="title" 
                     v-model="form.title" 
@@ -102,12 +103,12 @@ const submit = () => {
                     class="w-full dark:bg-gray-700 dark:text-white" 
                     required
                 />
-                <div v-if="form.errors.title" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.title }}</div>
+                <InputError class="mt-2" :message="form.errors.title" />
             </div>
             
             <!-- Author Selection -->
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Author *</label>
+                <Label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Author *</Label>
                 
                 <div class="flex space-x-4 mb-3">
                     <button 
@@ -146,12 +147,12 @@ const submit = () => {
                             {{ author.first_name }} {{ author.last_name }}
                         </option>
                     </select>
-                    <div v-if="form.errors.author_id" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.author_id }}</div>
+                    <InputError class="mt-2" :message="form.errors.author_id" />
                 </div>
                 
                 <div v-else class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">First Name</label>
+                        <Label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">First Name</Label>
                         <Input 
                             id="first_name" 
                             v-model="newAuthor.first_name" 
@@ -162,7 +163,7 @@ const submit = () => {
                         />
                     </div>
                     <div>
-                        <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Last Name</label>
+                        <Label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Last Name</Label>
                         <Input 
                             id="last_name" 
                             v-model="newAuthor.last_name" 
@@ -172,18 +173,14 @@ const submit = () => {
                             @input="updateNewAuthor"
                         />
                     </div>
-                    <div v-if="form.errors['new_author.first_name']" class="text-red-500 dark:text-red-400 text-sm mt-1">
-                        {{ form.errors['new_author.first_name'] }}
-                    </div>
-                    <div v-if="form.errors['new_author.last_name']" class="text-red-500 dark:text-red-400 text-sm mt-1">
-                        {{ form.errors['new_author.last_name'] }}
-                    </div>
+                    <InputError class="mt-2" :message="form.errors['new_author.first_name']" />
+                    <InputError class="mt-2" :message="form.errors['new_author.last_name']" />
                 </div>
             </div>
             
             <!-- Category -->
             <div class="mb-6">
-                <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Category *</label>
+                <Label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Category *</Label>
                 <select 
                     id="category"
                     v-model="form.category_id" 
@@ -195,31 +192,31 @@ const submit = () => {
                         {{ category.name }}
                     </option>
                 </select>
-                <div v-if="form.errors.category_id" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.category_id }}</div>
+                <InputError class="mt-2" :message="form.errors.category_id" />
             </div>
             
             <!-- Description -->
             <div class="mb-6">
-                <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
+                <Label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</Label>
                 <textarea 
                     id="description"
                     v-model="form.description" 
                     rows="4" 
                     class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-white"
                 ></textarea>
-                <div v-if="form.errors.description" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.description }}</div>
+                <InputError class="mt-2" :message="form.errors.description" />
             </div>
             
             <!-- Cover Image -->
             <div class="mb-6">
-                <label for="cover" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Cover Image</label>
+                <Label for="cover" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Cover Image</Label>
                 
                 <div v-if="form.cover_preview" class="mb-2">
                     <p v-if="mode === 'edit'" class="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Cover:</p>
                     <img :src="form.cover_preview" alt="Cover preview" class="h-40 object-cover rounded-md" />
                 </div>
                 
-                <input 
+                <Input 
                     id="cover"
                     type="file" 
                     accept="image/*"
@@ -243,7 +240,7 @@ const submit = () => {
                     type="text" 
                     class="w-full dark:bg-gray-700 dark:text-white"
                 />
-                <div v-if="form.errors.publisher" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.publisher }}</div>
+                <InputError class="mt-2" :message="form.errors.publisher" />
             </div>
             
             <!-- Published Date -->
@@ -259,24 +256,24 @@ const submit = () => {
                         class="w-full dark:bg-gray-700 dark:text-white"
                     />
                 </div>
-                <div v-if="form.errors.published_at" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.published_at }}</div>
+                <InputError class="mt-2" :message="form.errors.published_at" />
             </div>
             
             <!-- ISBN -->
             <div class="mb-6">
-                <label for="isbn" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">ISBN</label>
+                <Label for="isbn" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">ISBN</Label>
                 <Input 
                     id="isbn"
                     v-model="form.isbn" 
                     type="text" 
                     class="w-full dark:bg-gray-700 dark:text-white"
                 />
-                <div v-if="form.errors.isbn" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.isbn }}</div>
+                <InputError class="mt-2" :message="form.errors.isbn" />
             </div>
             
             <!-- Page Count -->
             <div class="mb-6">
-                <label for="page_count" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Page Count</label>
+                <Label for="page_count" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Page Count</Label>
                 <Input 
                     id="page_count"
                     v-model="form.page_count" 
@@ -284,7 +281,7 @@ const submit = () => {
                     min="1"
                     class="w-full dark:bg-gray-700 dark:text-white"
                 />
-                <div v-if="form.errors.page_count" class="text-red-500 dark:text-red-400 text-sm mt-1">{{ form.errors.page_count }}</div>
+                <InputError class="mt-2" :message="form.errors.page_count" />
             </div>
             
             <!-- Submit Buttons -->

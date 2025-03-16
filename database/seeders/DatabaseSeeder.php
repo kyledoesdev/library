@@ -11,6 +11,36 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->createCategories();
+
+        User::factory()->create([
+            'first_name' => 'Test',
+            'last_name' => 'Librarian',
+            'timezone' => 'America/New_York',
+            'avatar' => "https://api.dicebear.com/7.x/initials/svg?seed=Test Librarian",
+            'email' => 'librarian@mail.com',
+            'is_librarian' => true
+        ]);
+
+        User::factory()->create([
+            'first_name' => 'Test',
+            'last_name' => 'Customer',
+            'timezone' => 'America/New_York',
+            'avatar' => "https://api.dicebear.com/7.x/initials/svg?seed=Test Customer",
+            'email' => 'customer@mail.com',
+            'is_librarian' => false
+        ]);
+
+        User::factory(50)->create();
+
+        Book::factory(10)->withActiveCheckout()->create();
+        Book::factory(10)->create();
+        Book::factory(10)->withPreviousCheckout()->withReview()->create();
+        Book::factory(20)->create();
+    }
+
+    private function createCategories(): void
+    {
         Category::create(['name' => 'Fiction']);
         Category::create(['name' => 'Non-Fiction']);
         Category::create(['name' => 'Mystery']);
@@ -47,19 +77,5 @@ class DatabaseSeeder extends Seeder
         Category::create(['name' => 'Adventure']);
         Category::create(['name' => 'Historical Fiction']);
         Category::create(['name' => 'Satire']);
-
-        User::factory()->create([
-            'first_name' => 'Kyle',
-            'last_name' => 'Evangelisto',
-            'timezone' => 'America/New_York',
-            'avatar' => "https://api.dicebear.com/7.x/initials/svg?seed=Kyle Evangelisto",
-            'email' => 'kyleevangelisto@gmail.com',
-            'is_librarian' => true
-        ]);
-
-        User::factory(100)->create();
-
-        Book::factory(25)->checkout()->create();
-        Book::factory(25)->create();
     }
 }

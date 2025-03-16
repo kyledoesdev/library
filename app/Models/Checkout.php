@@ -21,6 +21,11 @@ class Checkout extends Model
         return $this->hasOne(Book::class, 'id', 'book_id');
     }
 
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
     public function getDueAtAttribute(): string
     {
         return Carbon::parse($this->attributes['due_at'])->inUserTimezone()->format('m/d/Y');

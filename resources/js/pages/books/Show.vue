@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import RatingsTable from '@/pages/partials/tables/RatingsTable.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
     book: Object
@@ -13,10 +15,13 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
     {
-        title: 'View Book',
+        title: props.book.title,
         href: `/book/${props.book}/show`
     }
 ];
+
+const page = usePage();
+const user = page.props.auth.user;
 </script>
 
 
@@ -67,19 +72,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Page Count</h2>
                                 <p class="text-gray-700 dark:text-gray-300">{{ book.page_count || 'Not specified' }}</p>
                             </div>
-                            
-                            <div>
-                                <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Status</h2>
-                                <p v-if="book.checkout && book.checkout.length > 0" class="text-red-600 dark:text-red-400">
-                                    Currently checked out (Due: {{ formatDate(book.checkout.due_at) }})
-                                </p>
-                                <p v-else class="text-green-600 dark:text-green-400">
-                                    Available
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="py-4">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <RatingsTable :book="book" />
             </div>
         </div>
     </AppLayout>

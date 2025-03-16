@@ -54,7 +54,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained();
             $table->foreignIdFor(Book::class)->constrained();
             $table->integer('stars');
-            $table->text('review');
+            $table->text('body');
             $table->timestamps();
         });
     }

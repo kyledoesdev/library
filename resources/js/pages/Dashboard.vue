@@ -34,18 +34,6 @@ const props = defineProps({
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <!-- top container -->
             <div v-if="user.is_librarian" class="space-y-8">
-                <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern />
-                    </div>
-                    <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern />
-                    </div>
-                    <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern />
-                    </div>
-                </div>
-
                 <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
                     <BookTableActions />
                     <BookTable :books="books" />
@@ -54,14 +42,19 @@ const props = defineProps({
             <div v-else>
                 <div class="space-y-8">
                     <div>
-                        <h5 class="my-4">Checked Out Books</h5>
-                        <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
+                        <h5 class="my-4">Checked Out Books:</h5>
+                        <div
+                            class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min"
+                        >
                             <BookTableActions />
-                            <BookTable :books="books" />
+                            <BookTable :books="books" v-if="(books.data && books.data.length > 0) || books.length" />
+                            <div v-else>
+                                <span class="text-sm">No Books Found</span>
+                            </div>
                         </div>
                     </div>
                     <div>
-                        <h5 class="my-4">Featured Books</h5>
+                        <h5 class="my-4">Featured Books:</h5>
                         <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
                             <BookTableActions :table="'featured'" />
                             <BookTable :books="featured_books" :mode="'featured'" />

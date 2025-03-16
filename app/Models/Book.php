@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Model;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
@@ -24,12 +25,22 @@ class Book extends Model
     ];
 
     protected $appends = [
-        'formatted_published_at'
+        'formatted_published_at',
+        'rating'
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('default_order', function ($query) {
+            $query->when(auth()->user()->is_librarian, fn($q) => $q->orderBy('title', 'asc'));
+        });
+    }
 
     public function checkout(): HasOne
     {
-        return $this->hasOne(Checkout::class);
+        return $this->hasOne(Checkout::class, 'book_id', 'id');
     }
 
     public function author(): HasOne
@@ -37,9 +48,14 @@ class Book extends Model
         return $this->hasOne(Author::class, 'id', 'author_id');
     }
 
-    public function category()
+    public function category(): HasOne
     {
         return $this->hasOne(Category::class, 'id', 'category_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 
     public function getFormattedPublishedAtAttribute(): string
@@ -67,8 +83,14 @@ class Book extends Model
             ->when(request()->search, function($query, $search) {
                 $query->where('title', 'like', "%{$search}%");
             })
-            ->with('checkout', 'author')
-            ->paginate(request()->input('per_page', 15))
+            ->with([
+                'checkout',
+                'checkout.user',
+                'author',
+                'reviews',
+                'reviews.user'
+            ])
+            ->paginate(15)
             ->withQueryString();
     }
 
@@ -81,8 +103,14 @@ class Book extends Model
             ->when(request()->search, function($query, $search) {
                 $query->where('title', 'like', "%{$search}%");
             })
-            ->with('checkout', 'author')
-            ->paginate(request()->input('per_page', 15))
+            ->with([
+                'checkout',
+                'checkout.user',
+                'author',
+                'reviews',
+                'reviews.user'
+            ])
+            ->paginate(15)
             ->withQueryString();
     }
 
@@ -96,8 +124,27 @@ class Book extends Model
             ->when(! request()->featured_search, function($query) {
                 $query->inRandomOrder();
             })
-            ->with('checkout', 'author')
+            ->with([
+                'checkout',
+                'checkout.user',
+                'author',
+                'reviews',
+                'reviews.user'
+            ])
             ->limit(15)
             ->get();
+    }
+
+    public function getRatingAttribute()
+    {
+        $reviews = $this->reviews;
+
+        if (count($reviews) == 0) {
+            return 'N/A';
+        }
+
+        $stars = $reviews->sum('stars');
+
+        return number_format($stars / count($reviews));
     }
 }

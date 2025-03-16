@@ -44,6 +44,11 @@ class User extends Authenticatable
         return $this->hasMany(Checkout::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return $this->first_name . ' ' . $this->last_name;

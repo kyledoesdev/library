@@ -36,7 +36,14 @@ class BookController extends Controller
     public function show(Book $book)
     {
         return Inertia::render('books/Show', [
-            'book' => $book->load('author', 'category'),
+            'book' => $book->load([
+                'author',
+                'category',
+                'checkout',
+                'checkout.user',
+                'reviews',
+                'reviews.user'
+            ]),
         ]);
     }
 
