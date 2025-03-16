@@ -16,7 +16,7 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'books' => $books,
-            'featured_books' => Book::featured()
+            'featured_books' => Book::getFeaturedBooks()
         ]);
     }
 }

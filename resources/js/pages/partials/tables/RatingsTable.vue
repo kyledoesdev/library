@@ -84,11 +84,11 @@ const destroyReview = (review) => {
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-for="review in book.reviews" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-700 dark:text-gray-200">{{ review.user.full_name }}</td>
-                        <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-700 dark:text-gray-200">{{ review.stars }} stars</td>
-                        <td class="px-4 py-2 text-xs text-gray-700 dark:text-gray-200">{{ review.body }}</td>
-                        <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-700 dark:text-gray-200">{{ review.created_at }}</td>
-                        <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-700 dark:text-gray-200" v-if="! user.is_librarian ">
+                        <td class="px-4 py-2 text-center whitespace-nowrap text-xs text-gray-700 dark:text-gray-200">{{ review.user.full_name }}</td>
+                        <td class="px-4 py-2 text-center whitespace-nowrap text-xs text-gray-700 dark:text-gray-200">{{ review.stars }} stars</td>
+                        <td class="px-4 py-2 text-center text-xs text-gray-700 dark:text-gray-200">{{ review.body }}</td>
+                        <td class="px-4 py-2 text-center whitespace-nowrap text-xs text-gray-700 dark:text-gray-200">{{ review.created_at }}</td>
+                        <td class="px-4 py-2 text-center whitespace-nowrap text-xs text-gray-700 dark:text-gray-200" v-if="! user.is_librarian ">
                             <div v-if="review.user.id == user.id">
                                 <!-- Edit Book -->
                                 <button class="btn-secondary p-2 dark:text-white mr-1" @click="editReview(review)">

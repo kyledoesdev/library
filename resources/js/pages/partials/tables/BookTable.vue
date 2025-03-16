@@ -1,8 +1,9 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { defineProps } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { defineProps, ref, computed } from 'vue';
+import { usePage, router } from '@inertiajs/vue3';
 import Actions from '@/pages/partials/tables/columns/Actions.vue';
+import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
     books: {
@@ -10,12 +11,69 @@ const props = defineProps({
         required: true
     },
     mode: {
-        type: String
+        type: String,
+        required: true
     }
 });
 
 const page = usePage();
 const user = page.props.auth.user;
+const urlParams = new URLSearchParams(window.location.search);
+
+const currentOrder = ref(props.mode === 'featured' ? 
+    urlParams.get('featured_order') || '' : 
+    urlParams.get('order') || '');
+
+const currentDirection = ref(props.mode === 'featured' ? 
+    urlParams.get('featured_direction') || 'asc' : 
+    urlParams.get('direction') || 'asc');
+
+const isSorted = (column) => currentOrder.value === column;
+
+function sortBy(column) {
+    let direction = 'asc';
+    if (column === currentOrder.value && currentDirection.value === 'asc') {
+        direction = 'desc';
+    }
+    
+    currentOrder.value = column;
+    currentDirection.value = direction;
+    
+    const url = window.location.pathname;
+    const query = {};
+
+    for (const [key, value] of urlParams.entries()) {
+        if ((props.mode === 'featured' && (key === 'featured_order' || key === 'featured_direction')) ||
+            (props.mode !== 'featured' && (key === 'order' || key === 'direction'))) {
+            continue;
+        }
+        query[key] = value;
+    }
+    
+    if (props.mode === 'featured') {
+        query.featured_order = column;
+        query.featured_direction = direction;
+        
+        router.visit(url, {
+            data: query,
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            only: ['featured_books']
+        });
+    } else {
+        query.order = column;
+        query.direction = direction;
+        
+        router.visit(url, {
+            data: query,
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            only: ['books']
+        });
+    }
+}
 </script>
 
 <template>
@@ -29,17 +87,33 @@ const user = page.props.auth.user;
                     >
                         Cover
                     </th>
+                    <!-- Sortable Title -->
                     <th
                         scope="col"
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                        @click="sortBy('title')"
                     >
-                        Title
+                        <div class="flex items-center justify-center">
+                            Title
+                            <span v-if="isSorted('title')" class="ml-1">
+                                <ArrowUpIcon v-if="currentDirection === 'asc'" class="h-4 w-4" />
+                                <ArrowDownIcon v-else class="h-4 w-4" />
+                            </span>
+                        </div>
                     </th>
+                    <!-- Sortable Author -->
                     <th
                         scope="col"
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                        @click="sortBy('author')"
                     >
-                        Author
+                        <div class="flex items-center justify-center">
+                            Author
+                            <span v-if="isSorted('author')" class="ml-1">
+                                <ArrowUpIcon v-if="currentDirection === 'asc'" class="h-4 w-4" />
+                                <ArrowDownIcon v-else class="h-4 w-4" />
+                            </span>
+                        </div>
                     </th>
                     <th
                         scope="col"
@@ -72,12 +146,20 @@ const user = page.props.auth.user;
                     >
                         Checked Out By
                     </th>
+                    <!-- Sortable Availability -->
                     <th
                         scope="col"
-                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                        @click="sortBy('availability')"
                         v-if="user.is_librarian || (! user.is_librarian && props.mode !== 'featured')"
                     >
-                        Due On
+                        <div class="flex items-center justify-center">
+                            Due On
+                            <span v-if="isSorted('availability')" class="ml-1">
+                                <ArrowUpIcon v-if="currentDirection === 'asc'" class="h-4 w-4" />
+                                <ArrowDownIcon v-else class="h-4 w-4" />
+                            </span>
+                        </div>
                     </th>
                     <th
                         scope="col"
@@ -111,14 +193,14 @@ const user = page.props.auth.user;
                     <td class="px-4 py-2 whitespace-nowrap text-xs text-center text-gray-700 dark:text-gray-200">
                         {{ book.rating == 'N/A' ? 'N/A' : book.rating + ' stars' }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-xs text-center text-gray-700 dark:text-gray-200">
+                    <td class="px-4 py-2 whitespace-nowrap text-xs text-center text-gray-700 dark:text-gray-200" v-if="user.is_librarian">
                         {{ book.checkout ? book.checkout.user.full_name : 'N/A' }}
                     </td>
-                    <td class="px-4 py-2 whitespace-nowrap text-xs text-center text-gray-700 dark:text-gray-200" v-if="props.mode !== 'featured'">
+                    <td class="px-4 py-2 whitespace-nowrap text-xs text-center text-gray-700 dark:text-gray-200" v-if="user.is_librarian || (! user.is_librarian && props.mode !== 'featured')">
                         <div>
                             <span v-if="book.checkout" class="font-bold">{{ book.checkout.due_at }}</span>
                             <span v-else-if="user.is_librarian && book.checkout"></span>
-                            <span v-else>N/A</span>
+                            <span v-else>Available</span>
                         </div>
                     </td>
                     <td class="px-4 py-2 whitespace-nowrap text-xs text-center text-gray-700 dark:text-gray-200">
@@ -129,8 +211,7 @@ const user = page.props.auth.user;
         </table>
     </div>
     
-
-    <div class="mt-3 flex justify-between p-1" v-if="props.mode != 'featured' && (books.length > 0 || books.data.length > 0)">
+    <div class="mt-3 flex justify-between p-1" v-if="books.links && books.links.length > 0">
         <div class="text-xs text-gray-600 dark:text-gray-300">
             Showing {{ books.from ? books.from : 0 }} to {{ books.to ? books.to : 0 }} of {{ books.total ? books.total : 0 }} results
         </div>

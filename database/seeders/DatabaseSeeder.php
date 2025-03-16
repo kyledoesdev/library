@@ -33,10 +33,10 @@ class DatabaseSeeder extends Seeder
 
         User::factory(50)->create();
 
-        Book::factory(10)->withActiveCheckout()->create();
-        Book::factory(10)->create();
-        Book::factory(10)->withPreviousCheckout()->withReview()->create();
-        Book::factory(20)->create();
+        Book::factory(10)->withActiveCheckout()->withReview()->create();
+        Book::factory(10)->withReview()->create();
+        Book::factory(15)->isFeatured()->create();
+        Book::factory(15)->create();
     }
 
     private function createCategories(): void

@@ -31,7 +31,8 @@ final class UpdateBook
                 'page_count' => $attributes['page_count'],
                 'cover' => is_null($cover)
                     ? "https://picsum.photos/seed/{$attributes['title']}/200/300"
-                    : $cover
+                    : $cover,
+                'is_featured' => $attributes['is_featured'],
             ]);
         });
     }

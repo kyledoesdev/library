@@ -21,13 +21,21 @@ class Book extends Model
         'published_at',
         'isbn',
         'page_count',
-        'quantity'
+        'quantity',
+        'is_featured',
     ];
 
     protected $appends = [
         'formatted_published_at',
         'rating'
     ];
+
+    public function casts(): array
+    {
+        return [
+            'is_featured' => 'boolean'
+        ];
+    }
 
     public static function boot()
     {
@@ -58,6 +66,8 @@ class Book extends Model
         return $this->hasMany(Review::class);
     }
 
+    /* Attrbiutes */
+
     public function getFormattedPublishedAtAttribute(): string
     {
         return Carbon::parse($this->attributes['published_at'])->inUserTimezone()->format('m/d/Y');
@@ -77,12 +87,30 @@ class Book extends Model
         return asset('storage/' . $this->attributes['cover']);
     }
 
+    public function getRatingAttribute()
+    {
+        $reviews = $this->reviews;
+
+        if (count($reviews) == 0) {
+            return 'N/A';
+        }
+
+        $stars = $reviews->sum('stars');
+
+        return number_format($stars / count($reviews));
+    }
+
+    /* scopes & queries */
+
     public static function forLibrarian()
     {
         return self::query()
-            ->when(request()->search, function($query, $search) {
-                $query->where('title', 'like', "%{$search}%");
-            })
+            ->selectRaw('
+                books.*,
+                CONCAT(authors.first_name, " ", authors.last_name) as author_full_name,
+                checkouts.checked_out_at
+            ')
+            ->withSearchAndSort(false)
             ->with([
                 'checkout',
                 'checkout.user',
@@ -97,12 +125,15 @@ class Book extends Model
     public static function forCustomer()
     {
         return self::query()
+            ->selectRaw('
+                books.*,
+                CONCAT(authors.first_name, " ", authors.last_name) as author_full_name,
+                checkouts.checked_out_at
+            ')
             ->whereHas('checkout', function($query2) {
                 $query2->where('user_id', auth()->id());
             })
-            ->when(request()->search, function($query, $search) {
-                $query->where('title', 'like', "%{$search}%");
-            })
+            ->withSearchAndSort(false)
             ->with([
                 'checkout',
                 'checkout.user',
@@ -114,16 +145,15 @@ class Book extends Model
             ->withQueryString();
     }
 
-    public static function featured()
+    public static function getFeaturedBooks()
     {
         return self::query()
-            ->whereDoesntHave('checkout')
-            ->when(request()->featured_search, function($query, $search) {
-                $query->where('title', 'like', "%{$search}%");
-            })
-            ->when(! request()->featured_search, function($query) {
-                $query->inRandomOrder();
-            })
+            ->selectRaw('
+                books.*,
+                CONCAT(authors.first_name, " ", authors.last_name) as author_full_name
+            ')
+            ->where('is_featured', true)
+            ->withSearchAndSort(true)
             ->with([
                 'checkout',
                 'checkout.user',
@@ -131,20 +161,58 @@ class Book extends Model
                 'reviews',
                 'reviews.user'
             ])
-            ->limit(15)
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
     }
 
-    public function getRatingAttribute()
+    public function scopeWithSearchAndSort($query, $isFeatured)
     {
-        $reviews = $this->reviews;
-
-        if (count($reviews) == 0) {
-            return 'N/A';
-        }
-
-        $stars = $reviews->sum('stars');
-
-        return number_format($stars / count($reviews));
+        $query->newQuery()
+            ->join('authors', 'books.author_id', '=', 'authors.id')
+            ->leftJoin('checkouts', function($join) {
+                $join->on('books.id', '=', 'checkouts.book_id');
+            })
+            ->when(request()->search, function($query, $search) {
+                $query->where('books.title', 'like', "%{$search}%");
+            })
+            ->when(request()->featured_search, function($query, $search) {
+                $query->where('books.title', 'like', "%{$search}%");
+            })
+            ->when($isFeatured, function($query) {
+                $query->newQuery()
+                    ->where('is_featured', true)
+                    ->when(request()->featured_order === 'title' && request()->featured_direction, function($q) {
+                        $q->orderBy('books.title', request()->featured_direction);
+                    })
+                    ->when(request()->featured_order === 'author' && request()->featured_direction, function($q) {
+                        $q->orderByRaw('CONCAT(authors.first_name, " ", authors.last_name) ' . request()->featured_direction);
+                    })
+                    ->when(request()->featured_order === 'availability' && request()->featured_direction, function($q) {
+                        if (request()->featured_direction === 'asc') {
+                            $q->orderByRaw('CASE WHEN checkouts.checked_out_at IS NULL THEN 0 ELSE 1 END');
+                        } else {
+                            $q->orderByRaw('CASE WHEN checkouts.checked_out_at IS NULL THEN 1 ELSE 0 END');
+                        }
+                    });
+            })
+            ->when(! $isFeatured, function($query) {
+                $query
+                    ->when(request()->order === 'title' && request()->direction, function($q) {
+                        $q->orderBy('books.title', request()->direction);
+                    })
+                    ->when(request()->order === 'author' && request()->direction, function($q) {
+                        $q->orderByRaw('CONCAT(authors.first_name, " ", authors.last_name) ' . request()->direction);
+                    })
+                    ->when(request()->order === 'availability' && request()->direction, function($q) {
+                        if (request()->direction === 'asc') {
+                            $q->orderByRaw('CASE WHEN checkouts.checked_out_at IS NULL THEN 0 ELSE 1 END');
+                        } else {
+                            $q->orderByRaw('CASE WHEN checkouts.checked_out_at IS NULL THEN 1 ELSE 0 END');
+                        }
+                    })
+                    ->when(!request()->order, function($q) {
+                        $q->orderBy('books.title', 'asc'); // Default to title ASC for regular table
+                    });
+            });
     }
 }

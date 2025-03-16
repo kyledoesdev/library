@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('isbn');
             $table->integer('page_count');
             $table->integer('quantity')->default(1);
+            $table->boolean('is_featured')->default(false);
             $table->timestamps();
         });
 

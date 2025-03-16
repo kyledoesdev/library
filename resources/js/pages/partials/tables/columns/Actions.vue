@@ -58,22 +58,22 @@ const destoryCheckout = (book) => {
             >
                 <CheckIcon class="size-4" />
             </button>
-            <!-- Edit Book -->
-            <button
-                v-if="book.quantity > 0"
-                class="btn-secondary p-2 dark:text-white mr-1"
-                @click="editBook(book)"
-            >
-                <PencilIcon class="size-4" />
-            </button>
-            <!-- Delete Book -->
-            <button
-                v-if="book.quantity > 0"
-                class="btn-danger p-2 dark:text-white"
-                @click="destroyBook(book)"
-            >
-                <TrashIcon class="size-4" />
-            </button>
+            <div v-if="book.quantity > 0">
+                <!-- Edit Book -->
+                <button
+                    class="btn-secondary p-2 dark:text-white mr-1"
+                    @click="editBook(book)"
+                >
+                    <PencilIcon class="size-4" />
+                </button>
+                <!-- Delete Book -->
+                <button
+                    class="btn-danger p-2 dark:text-white"
+                    @click="destroyBook(book)"
+                >
+                    <TrashIcon class="size-4" />
+                </button>
+            </div>
         </div>
         <div v-else>
             <!-- Customer Checks Out Book -->

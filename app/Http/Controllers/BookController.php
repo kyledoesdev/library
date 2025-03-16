@@ -18,7 +18,7 @@ class BookController extends Controller
     {
         return Inertia::render('books/Create', [
             'categories' => Category::all(),
-            'authors' => Author::all()
+            'authors' => Author::orderByRaw('CONCAT(first_name, " ", last_name)')->get()
         ]);
     }
 
@@ -52,7 +52,7 @@ class BookController extends Controller
         return Inertia::render('books/Edit', [
             'book' => $book,
             'categories' => Category::all(),
-            'authors' => Author::all()
+            'authors' => Author::orderByRaw('CONCAT(first_name, " ", last_name)')->get()
         ]);
     }
 

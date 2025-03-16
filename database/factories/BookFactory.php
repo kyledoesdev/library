@@ -25,7 +25,17 @@ class BookFactory extends Factory
             'isbn' => $this->faker->isbn13(),
             'page_count' => $this->faker->numberBetween(50, 1200),
             'quantity' => 1,
+            'is_featured' => false,
         ];
+    }
+
+    public function isFeatured()
+    {
+        return $this->afterCreating(function (Book $book) {
+            $book->update([
+                'is_featured' => true
+            ]);
+        });
     }
 
     public function withActiveCheckout()
@@ -42,20 +52,6 @@ class BookFactory extends Factory
 
             $book->update([
                 'quantity' => 0
-            ]);
-        });
-    }
-
-    public function withPreviousCheckout()
-    {
-        return $this->afterCreating(function (Book $book) {
-            $user = User::inRandomOrder()->first() ?? User::factory()->create();
-            
-            Checkout::create([
-                'book_id' => $book->getKey(),
-                'user_id' => $user->getKey(),
-                'checked_out_at' => now()->subDays(10),
-                'due_at' => now()->subDays(5),
             ]);
         });
     }

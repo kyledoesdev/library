@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useForm } from '@inertiajs/vue3';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/InputError.vue';
+import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 
 const props = defineProps({
     categories: {
@@ -50,6 +51,7 @@ const form = useForm({
     published_at: props.book.published_at || '',
     isbn: props.book.isbn || '',
     page_count: props.book.page_count || null,
+    is_featured: props.book.is_featured || false,
     new_author: {
         first_name: '',
         last_name: ''
@@ -91,11 +93,12 @@ const submit = () => {
 </script>
 
 <template>
+    <pre>{{ JSON.stringify(form.errors, null, 2) }}</pre>
     <div class="mx-auto">
         <form @submit.prevent="submit">
             <!-- Title -->
             <div class="mb-6">
-                <Label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Title *</label>
+                <Label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Title *</Label>
                 <Input 
                     id="title" 
                     v-model="form.title" 
@@ -233,7 +236,7 @@ const submit = () => {
             
             <!-- Publisher -->
             <div class="mb-6">
-                <label for="publisher" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Publisher</label>
+                <Label for="publisher" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Publisher</Label>
                 <Input 
                     id="publisher"
                     v-model="form.publisher" 
@@ -245,9 +248,9 @@ const submit = () => {
             
             <!-- Published Date -->
             <div class="mb-6">
-                <label for="published_at" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                <Label for="published_at" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Publication Date
-                </label>
+                </Label>
                 <div class="relative">
                     <Input 
                         id="published_at"
@@ -282,6 +285,19 @@ const submit = () => {
                     class="w-full dark:bg-gray-700 dark:text-white"
                 />
                 <InputError class="mt-2" :message="form.errors.page_count" />
+            </div>
+
+            <div class="mb-6">
+                <div class="flex">
+                    <Label for="page_count" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Feature this Book?</Label>
+                    <Checkbox 
+                        id="is_featured"
+                        v-model="form.is_featured" 
+                        class="dark:bg-gray-700 dark:text-white ml-2"
+                        @update:checked="(val) => form.is_featured = val"
+                    />
+                </div>
+                <InputError class="mt-2" :message="form.errors.is_featured" />
             </div>
             
             <!-- Submit Buttons -->

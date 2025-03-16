@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 final class StoreBook
 {
-    public function handle(array $attributes, string $cover)
+    public function handle(array $attributes, ?string $cover)
     {
         DB::transaction(function() use ($attributes, $cover) {
             $author = null;
@@ -32,7 +32,8 @@ final class StoreBook
                 'page_count' => $attributes['page_count'],
                 'cover' => is_null($cover)
                     ? "https://picsum.photos/seed/{$attributes['title']}/200/300"
-                    : $cover
+                    : $cover,
+                'is_featured' => $attributes['is_featured'],
             ]);
         });
     }
