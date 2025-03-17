@@ -93,7 +93,6 @@ const submit = () => {
 </script>
 
 <template>
-    <pre>{{ JSON.stringify(form.errors, null, 2) }}</pre>
     <div class="mx-auto">
         <form @submit.prevent="submit">
             <!-- Title -->
