@@ -14,7 +14,7 @@ You have PHP 8.3+, Composer, NPM & MySQL / SQLite.
 - composer i
 - cp .env.example .env
 - Configure your database credentials (sqlite / mysql)
-- php artisan migrate --seed
+- php artisan migrate --seed (ensure that you seed the database for best experience!!!!)
 - php artisan storage:link
 - npm i
 - npm run dev
